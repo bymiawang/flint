@@ -1220,3 +1220,19 @@ body::after {
 .all-caps {
   text-transform: uppercase; /* Makes the text display as "THIS TEXT WILL BE IN ALL CAPITAL LETTERS." */
 }
+
+/* ============================================================
+   DEMO EMBED (iframe in #how section)
+   ============================================================ */
+.demo-embed {
+  margin-top: 48px;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  background: var(--coal-2);
+}
+.demo-embed iframe {
+  width: 100%;
+  height: 640px;
+  display: block;
+  border: none;
+}

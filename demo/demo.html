@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flint Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+
+/* ============================================================
+   TOKENS
+============================================================ */
+:root {
+  --bg:      #181715;
+  --bg2:     #1d1b19;
+  --bg3:     #222120;
+  --orange:  #e8440a;
+  --o-dim:   rgba(232,68,10,0.13);
+  --o-bdr:   rgba(232,68,10,0.28);
+  --green:   #5ec47a;
+  --g-dim:   rgba(94,196,122,0.09);
+  --g-bdr:   rgba(94,196,122,0.24);
+  --yellow:  #e8c44a;
+  --y-dim:   rgba(232,196,74,0.1);
+  --y-bdr:   rgba(232,196,74,0.26);
+  --text:    rgba(242,238,230,0.88);
+  --text2:   rgba(242,238,230,0.48);
+  --text3:   rgba(242,238,230,0.22);
+  --rule:    rgba(242,238,230,0.08);
+  --rule2:   rgba(242,238,230,0.05);
+}
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 640px;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* grain noise overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px;
+}
+
+#wrap {
+  display: grid;
+  grid-template-columns: 26fr 44fr 30fr;
+  height: 640px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* scanline sweep */
+#wrap::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; height: 90px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.016), transparent);
+  pointer-events: none; z-index: 20;
+  animation: scanline 8s linear infinite;
+}
+@keyframes scanline {
+  from { top: -90px; }
+  to   { top: 660px; }
+}
+
+/* ============================================================
+   PATIENT CARD — left
+============================================================ */
+#patcard {
+  background: var(--bg2);
+  border-right: 1px solid var(--rule);
+  padding: 18px 16px;
+  display: flex; flex-direction: column; gap: 11px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+#patcard.on { opacity: 1; }
+
+.micro {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text3);
+}
+.pc-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px; letter-spacing: 0.04em;
+  color: var(--text); line-height: 1; margin-top: 3px;
+}
+.pc-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  color: var(--text2); margin-top: 1px;
+}
+.cond-badge {
+  display: inline-block; margin-top: 6px;
+  padding: 3px 8px;
+  background: var(--o-dim); border: 1px solid var(--o-bdr);
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--orange);
+}
+.pc-rule { height: 1px; background: var(--rule); flex-shrink: 0; }
+
+.pc-kv { display: flex; flex-direction: column; gap: 2px; }
+.pc-val {
+  font-size: 13px; font-weight: 500; color: var(--text);
+  margin-top: 3px; line-height: 1.2;
+}
+.pc-val-mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--text2);
+  letter-spacing: 0.06em; margin-top: 3px;
+}
+
+.risk-box {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  background: var(--o-dim); border-left: 2px solid var(--orange);
+  flex-shrink: 0;
+}
+.risk-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--orange);
+  animation: odot 1.7s ease infinite;
+  flex-shrink: 0;
+}
+@keyframes odot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.3; transform:scale(0.5); }
+}
+.risk-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--orange);
+}
+
+.orders-head {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 6px;
+}
+.orders { display: flex; flex-direction: column; gap: 5px; }
+.order {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 11px; color: var(--text2); line-height: 1.35;
+}
+.order-dash { color: var(--text3); flex-shrink: 0; margin-top: 0; }
+
+.pc-foot {
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 8px;
+}
+.flint-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--orange);
+  animation: odot 1.7s ease infinite;
+  transition: background 0.6s ease;
+  flex-shrink: 0;
+}
+.flint-dot.done { background: var(--green); animation: none; }
+.flint-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text2);
+}
+
+/* ============================================================
+   AGENT LOG — center
+============================================================ */
+#log {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.log-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg); flex-shrink: 0;
+}
+.log-hdr-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px; letter-spacing: 0.12em; color: var(--text);
+}
+.timer-wrap { display: flex; align-items: baseline; gap: 6px; }
+.timer {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px; font-weight: 400;
+  color: var(--orange); letter-spacing: 0.06em;
+}
+.timer-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text3);
+}
+
+#entries {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 6px 14px;
+  scrollbar-width: none;
+  display: flex; flex-direction: column;
+}
+#entries::-webkit-scrollbar { display: none; }
+
+/* log line */
+.ll {
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--rule2);
+  animation: lin 0.18s ease both;
+  flex-shrink: 0;
+}
+@keyframes lin {
+  from { opacity:0; transform:translateX(-4px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.ll:last-of-type { border-bottom: none; }
+
+/* special APPROVED line */
+.ll.special {
+  background: var(--g-dim);
+  margin: 4px -14px; padding: 10px 14px;
+  border-bottom: none;
+  border-left: 2px solid var(--green);
+}
+.ll.special .lt {
+  font-size: 15px; font-weight: 500;
+  color: var(--green); letter-spacing: 0.01em;
+}
+
+/* italic final line */
+.ll.italic .lt { font-style: italic; }
+
+.lts {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: var(--text3);
+  flex-shrink: 0; min-width: 38px; padding-top: 2px;
+}
+.lchip {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 2px 5px;
+  flex-shrink: 0; margin-top: 1px; white-space: nowrap;
+}
+.c-init   { background: rgba(242,238,230,0.05); color: var(--text2); border: 1px solid var(--rule); }
+.c-orange { background: var(--o-dim); color: var(--orange); border: 1px solid var(--o-bdr); }
+.c-green  { background: var(--g-dim); color: var(--green);  border: 1px solid var(--g-bdr); }
+.c-yellow { background: var(--y-dim); color: var(--yellow); border: 1px solid var(--y-bdr); }
+
+.lt {
+  font-size: 13px; font-weight: 300;
+  line-height: 1.45; color: var(--text); flex: 1;
+}
+
+/* blinking cursor (standalone element at end of log) */
+#cursor-row {
+  flex-shrink: 0; padding: 4px 0; display: none;
+}
+#cursor-row.on { display: block; }
+.cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: var(--orange);
+  vertical-align: text-bottom;
+  animation: blink 0.9s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* progress bar */
+.log-foot {
+  flex-shrink: 0; padding: 8px 14px;
+  border-top: 1px solid var(--rule);
+  background: var(--bg);
+}
+.prog-bar {
+  height: 2px; background: rgba(242,238,230,0.07);
+  position: relative; overflow: hidden;
+}
+.prog-fill {
+  position: absolute; top:0; left:0; height:100%;
+  width: 0%; background: var(--orange);
+  transition: width 1.1s ease;
+}
+.prog-lbl {
+  margin-top: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text3);
+}
+
+/* ============================================================
+   ACTIONS PANEL — right
+============================================================ */
+#ap {
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.ap-hdr {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.ap-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text3);
+}
+
+.ac-wrap {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* action card */
+.ac {
+  flex: 1;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--rule);
+  border-left: 2px solid rgba(242,238,230,0.09);
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative; overflow: hidden;
+  transition: border-left-color 0.35s ease, background 0.35s ease;
+}
+.ac:last-child { border-bottom: none; }
+
+.ac.inprog { border-left-color: var(--orange); background: rgba(232,68,10,0.04); }
+.ac.subm   { border-left-color: var(--yellow); background: rgba(232,196,74,0.04); }
+.ac.done   { border-left-color: var(--green);  background: rgba(94,196,122,0.04); }
+.ac.approv { border-left-color: var(--green);  background: rgba(94,196,122,0.06); }
+
+/* approved glow */
+.ac.approv.glow { animation: approvedGlow 1.3s ease both; }
+@keyframes approvedGlow {
+  0%  { box-shadow: none; }
+  30% { box-shadow: inset 0 0 32px rgba(94,196,122,0.18); }
+  100%{ box-shadow: none; }
+}
+
+/* celebrate pulse overlay */
+.ac-pulse {
+  position: absolute; inset: 0;
+  background: transparent; pointer-events: none;
+}
+.ac.cel .ac-pulse { animation: cpulse 0.7s ease both; }
+@keyframes cpulse {
+  0%  { background: rgba(94,196,122,0); }
+  35% { background: rgba(94,196,122,0.14); }
+  100%{ background: rgba(94,196,122,0); }
+}
+
+.ac-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.14em;
+  text-transform: uppercase; padding: 2px 6px;
+  display: inline-block; width: fit-content;
+  margin-bottom: 1px;
+}
+.sc-pend { background: rgba(242,238,230,0.05); color: var(--text3); border: 1px solid var(--rule); }
+.sc-prog { background: var(--o-dim); color: var(--orange); border: 1px solid var(--o-bdr); animation: chipblip 1.3s ease infinite; }
+.sc-subm { background: var(--y-dim); color: var(--yellow); border: 1px solid var(--y-bdr); }
+.sc-done { background: var(--g-dim); color: var(--green);  border: 1px solid var(--g-bdr); }
+.sc-appv { background: var(--g-dim); color: var(--green);  border: 1px solid var(--g-bdr); }
+@keyframes chipblip { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+.ac-title { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.25; }
+.ac-detail {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--text2); letter-spacing: 0.04em;
+}
+.ac-appr {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--green); letter-spacing: 0.06em;
+  opacity: 0; transition: opacity 0.5s ease; margin-top: 2px;
+}
+.ac.approv .ac-appr { opacity: 1; }
+
+.ac-check {
+  position: absolute; top: 11px; right: 12px;
+  font-size: 15px; color: var(--green);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.ac.done .ac-check, .ac.approv .ac-check { opacity: 1; }
+
+/* summary bar — always in flow (reserves space), opacity toggled */
+#sumbar {
+  flex-shrink: 0; height: 46px;
+  padding: 0 13px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--g-dim);
+  border-top: 1px solid var(--g-bdr);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+#sumbar.on { opacity: 1; transform: translateY(0); }
+
+.sum-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  color: var(--green);
+}
+.sum-check { color: var(--green); font-size: 14px; }
+
+/* ============================================================
+   REPLAY BUTTON
+============================================================ */
+#replay {
+  position: fixed; bottom: 12px; right: 12px;
+  background: rgba(242,238,230,0.06);
+  border: 1px solid var(--rule);
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 15px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s, background 0.2s, color 0.2s;
+  z-index: 1000;
+}
+#replay.on { opacity: 1; }
+#replay:hover { background: rgba(242,238,230,0.1); color: var(--text); }
+
+  </style>
+</head>
+<body>
+
+<div id="wrap">
+
+  <!-- =========================================================
+       PATIENT CARD
+  ========================================================= -->
+  <div id="patcard">
+    <div>
+      <div class="micro">Patient</div>
+      <div class="pc-name">M.R.</div>
+      <div class="pc-sub">67F &nbsp;·&nbsp; Heart Failure</div>
+      <span class="cond-badge">Acute Decompensated HF</span>
+    </div>
+
+    <div class="pc-rule"></div>
+
+    <div class="pc-kv">
+      <div class="micro">Payer</div>
+      <div class="pc-val">UnitedHealthcare</div>
+    </div>
+
+    <div class="pc-kv">
+      <div class="micro">Discharged</div>
+      <div class="pc-val-mono">Today &nbsp;·&nbsp; 14:32</div>
+    </div>
+
+    <div class="risk-box">
+      <div class="risk-dot"></div>
+      <div class="risk-txt">HIGH &nbsp;·&nbsp; Readmission Risk</div>
+    </div>
+
+    <div>
+      <div class="orders-head">Ordered Actions</div>
+      <div class="orders">
+        <div class="order"><span class="order-dash">—</span>Entresto PA (UHC)</div>
+        <div class="order"><span class="order-dash">—</span>Cardiology f/u ≤ 7d</div>
+        <div class="order"><span class="order-dash">—</span>BNP recheck · 2wk</div>
+        <div class="order"><span class="order-dash">—</span>PCP handoff</div>
+      </div>
+    </div>
+
+    <div class="pc-foot">
+      <div class="flint-dot" id="fdot"></div>
+      <div class="flint-lbl">Flint Active</div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       AGENT LOG
+  ========================================================= -->
+  <div id="log">
+    <div class="log-hdr">
+      <div class="log-hdr-title">FLINT AGENT</div>
+      <div class="timer-wrap">
+        <div class="timer" id="ltimer">00:00</div>
+        <div class="timer-lbl">elapsed</div>
+      </div>
+    </div>
+
+    <div id="entries">
+      <div id="cursor-row"><span class="cursor"></span></div>
+    </div>
+
+    <div class="log-foot">
+      <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
+      <div class="prog-lbl" id="plbl">Ready · Awaiting trigger</div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       ACTIONS PANEL
+  ========================================================= -->
+  <div id="ap">
+    <div class="ap-hdr">
+      <div class="ap-title">Actions &nbsp;·&nbsp; Patient M.R.</div>
+    </div>
+
+    <div class="ac-wrap">
+
+      <div class="ac" id="c-pa">
+        <div class="ac-pulse"></div>
+        <div class="ac-chip sc-pend" id="s-pa">Pending</div>
+        <div class="ac-title">Prior Auth — Entresto 24/26mg</div>
+        <div class="ac-detail" id="d-pa">UnitedHealthcare · PA required</div>
+        <div class="ac-appr" id="appr-pa">#8821-X · UHC Approved</div>
+        <div class="ac-check">✓</div>
+      </div>
+
+      <div class="ac" id="c-sp">
+        <div class="ac-pulse"></div>
+        <div class="ac-chip sc-pend" id="s-sp">Pending</div>
+        <div class="ac-title">Specialist Booking — Cardiology</div>
+        <div class="ac-detail" id="d-sp">In-network · 7-day window</div>
+        <div class="ac-check">✓</div>
+      </div>
+
+      <div class="ac" id="c-lb">
+        <div class="ac-pulse"></div>
+        <div class="ac-chip sc-pend" id="s-lb">Pending</div>
+        <div class="ac-title">Lab Order — BNP Recheck</div>
+        <div class="ac-detail" id="d-lb">Quest Diagnostics · Jan 21</div>
+        <div class="ac-check">✓</div>
+      </div>
+
+      <div class="ac" id="c-pc">
+        <div class="ac-pulse"></div>
+        <div class="ac-chip sc-pend" id="s-pc">Pending</div>
+        <div class="ac-title">PCP Handoff — Dr. Okonkwo</div>
+        <div class="ac-detail" id="d-pc">EHR delivery · pending</div>
+        <div class="ac-check">✓</div>
+      </div>
+
+    </div><!-- .ac-wrap -->
+
+    <div id="sumbar">
+      <div class="sum-txt">4 / 4 complete &nbsp;·&nbsp; 0 manual steps &nbsp;·&nbsp; 1m 24s</div>
+      <div class="sum-check">✓</div>
+    </div>
+  </div>
+
+</div><!-- #wrap -->
+
+<button id="replay">&#x21BA;&nbsp; Run again</button>
+
+<script>
+// ============================================================
+// TOKENS / STATE
+// ============================================================
+var timers  = [];
+var timerInt = null;
+var startT  = null;
+var frozen  = false;
+var running = false;
+
+// ============================================================
+// DOM REFS
+// ============================================================
+var patcard   = document.getElementById('patcard');
+var entries   = document.getElementById('entries');
+var cursorRow = document.getElementById('cursor-row');
+var ltimer    = document.getElementById('ltimer');
+var pfill     = document.getElementById('pfill');
+var plbl      = document.getElementById('plbl');
+var sumbar    = document.getElementById('sumbar');
+var replayBtn = document.getElementById('replay');
+var fdot      = document.getElementById('fdot');
+
+var CARDS = {
+  pa: { el: document.getElementById('c-pa'), chip: document.getElementById('s-pa'), det: document.getElementById('d-pa') },
+  sp: { el: document.getElementById('c-sp'), chip: document.getElementById('s-sp'), det: document.getElementById('d-sp') },
+  lb: { el: document.getElementById('c-lb'), chip: document.getElementById('s-lb'), det: document.getElementById('d-lb') },
+  pc: { el: document.getElementById('c-pc'), chip: document.getElementById('s-pc'), det: document.getElementById('d-pc') },
+};
+
+// ============================================================
+// SCHEDULER — single array, one runner
+// ============================================================
+function sched(ms, fn) {
+  timers.push(setTimeout(fn, ms));
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function fmt(ms) {
+  var s = Math.floor(ms / 1000);
+  var m = Math.floor(s / 60);
+  return (m < 10 ? '0' : '') + m + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+}
+
+// ============================================================
+// TYPEWRITER
+// ============================================================
+function typewrite(el, text, speed) {
+  speed = speed || 18;
+  var i = 0;
+  function tick() {
+    el.textContent = text.slice(0, i);
+    if (i <= text.length) {
+      i++;
+      timers.push(setTimeout(tick, speed));
+    }
+  }
+  tick();
+}
+
+// ============================================================
+// LOG
+// ============================================================
+var CHIP_LABELS = { init: 'INIT', orange: 'EXEC', green: 'DONE', yellow: 'WAIT' };
+
+function addLog(ts, type, text, special, italic) {
+  var line = document.createElement('div');
+  line.className = 'll' + (special ? ' special' : '') + (italic ? ' italic' : '');
+
+  var tsEl = document.createElement('span');
+  tsEl.className = 'lts';
+  tsEl.textContent = ts;
+
+  var chip = document.createElement('span');
+  chip.className = 'lchip c-' + type;
+  chip.textContent = CHIP_LABELS[type] || type.toUpperCase();
+
+  var txt = document.createElement('span');
+  txt.className = 'lt';
+
+  line.appendChild(tsEl);
+  line.appendChild(chip);
+  line.appendChild(txt);
+
+  // Insert before cursor row so cursor stays last
+  entries.insertBefore(line, cursorRow);
+  entries.scrollTop = entries.scrollHeight;
+
+  typewrite(txt, text);
+}
+
+// ============================================================
+// CARD STATE
+// ============================================================
+var CARD_STATES = {
+  inprog: ['inprog',        'sc-prog', 'In Progress'],
+  subm:   ['subm',          'sc-subm', 'Submitted'],
+  done:   ['done',          'sc-done', 'Complete'],
+  approv: ['approv glow',   'sc-appv', 'Approved'],
+};
+
+function setCard(key, state, detail) {
+  var c = CARDS[key];
+  var s = CARD_STATES[state];
+  c.el.className   = 'ac ' + s[0];
+  c.chip.className = 'ac-chip ' + s[1];
+  c.chip.textContent = s[2];
+  if (detail) c.det.textContent = detail;
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function setProgress(pct, label) {
+  pfill.style.width = pct + '%';
+  if (label !== undefined) plbl.textContent = label;
+}
+
+// ============================================================
+// CELEBRATE
+// ============================================================
+function celebrate(key) {
+  var el = CARDS[key].el;
+  el.classList.add('cel');
+  timers.push(setTimeout(function() { el.classList.remove('cel'); }, 800));
+}
+
+// ============================================================
+// TIMELINE
+// ============================================================
+var TL = [
+  // T+0.0s — patient card in, cursor on, timer starts
+  { t: 0,     f: function() { patcard.classList.add('on'); cursorRow.classList.add('on'); } },
+
+  // T+1.2s — init
+  { t: 1200,  f: function() { addLog('00:01', 'init',   'Initializing Flint agent for patient M.R...'); } },
+
+  // T+2.1s — parse note
+  { t: 2100,  f: function() { addLog('00:02', 'orange', 'Parsing discharge note...'); setProgress(5, 'Parsing note · 0 actions complete'); } },
+
+  // T+3.8s — extracted
+  { t: 3800,  f: function() { addLog('00:03', 'green',  'Extracted: 4 required actions, 1 PA-eligible procedure'); setProgress(12); } },
+
+  // T+5.2s — payer ID
+  { t: 5200,  f: function() { addLog('00:05', 'orange', 'Identified payer: UnitedHealthcare · Formulary lookup...'); setProgress(18); } },
+
+  // T+6.9s — PA card in-progress
+  { t: 6900,  f: function() { setCard('pa', 'inprog'); } },
+
+  // T+7.4s — assembling PA
+  { t: 7400,  f: function() { addLog('00:07', 'orange', 'Assembling PA documentation for Entresto 24/26mg...'); } },
+
+  // T+9.6s — mapping form
+  { t: 9600,  f: function() { addLog('00:09', 'orange', 'Mapping UHC prior auth form requirements...'); } },
+
+  // T+12.1s — FHIR submit
+  { t: 12100, f: function() { addLog('00:12', 'orange', 'Submitting PA via FHIR API endpoint...'); setProgress(26); } },
+
+  // T+15.3s — submitted, awaiting
+  { t: 15300, f: function() { addLog('00:15', 'yellow', 'PA submitted · Reference #8821-X · Awaiting decision'); setProgress(32, 'PA submitted · 0 complete'); } },
+
+  // T+15.5s — PA card submitted
+  { t: 15500, f: function() { setCard('pa', 'subm', 'Ref #8821-X · Awaiting UHC'); } },
+
+  // T+18.0s — cardiology query
+  { t: 18000, f: function() { addLog('00:18', 'orange', 'Querying in-network cardiologists within 7-day window...'); } },
+
+  // T+18.2s — specialist card in-progress
+  { t: 18200, f: function() { setCard('sp', 'inprog'); } },
+
+  // T+21.4s — slot found
+  { t: 21400, f: function() { addLog('00:21', 'orange', 'Dr. Patel available Jan 14 · Confirming slot...'); setProgress(45); } },
+
+  // T+24.0s — appointment confirmed
+  { t: 24000, f: function() { addLog('00:24', 'green',  'Appointment confirmed · Jan 14, 10:30am · Handoff queued'); setProgress(52, 'Cardiology booked · 1 complete'); } },
+
+  // T+24.2s — specialist complete
+  { t: 24200, f: function() { setCard('sp', 'done', 'Dr. Patel · Jan 14, 10:30am'); } },
+
+  // T+26.5s — lab order
+  { t: 26500, f: function() { addLog('00:26', 'orange', 'Creating lab order: BNP recheck · Quest Diagnostics...'); } },
+
+  // T+26.6s — lab in-progress
+  { t: 26600, f: function() { setCard('lb', 'inprog'); } },
+
+  // T+29.8s — lab sent
+  { t: 29800, f: function() { addLog('00:29', 'green',  'Lab order sent · Jan 21 · Results routing to Dr. Okonkwo'); setProgress(64, 'Lab ordered · 2 complete'); } },
+
+  // T+30.0s — lab complete
+  { t: 30000, f: function() { setCard('lb', 'done', 'Quest Diagnostics · Jan 21'); } },
+
+  // T+32.0s — PCP handoff
+  { t: 32000, f: function() { addLog('00:32', 'orange', 'Generating structured PCP handoff document...'); } },
+
+  // T+32.1s — PCP in-progress
+  { t: 32100, f: function() { setCard('pc', 'inprog'); } },
+
+  // T+35.2s — handoff transmitted
+  { t: 35200, f: function() { addLog('00:35', 'green',  'Handoff transmitted to Dr. Okonkwo · EHR confirmed receipt'); setProgress(76, 'PCP handoff sent · 3 complete'); } },
+
+  // T+35.4s — PCP complete
+  { t: 35400, f: function() { setCard('pc', 'done', 'Dr. Okonkwo · EHR confirmed'); } },
+
+  // T+37.0s — APPROVED (special line)
+  { t: 37000, f: function() { addLog('00:37', 'green',  'UHC PA decision received: APPROVED ✓', true); setProgress(84, 'PA approved · 3 complete'); } },
+
+  // T+37.2s — PA card approved with glow
+  { t: 37200, f: function() { setCard('pa', 'approv', 'UHC · Decision received'); } },
+
+  // T+40.0s — monitoring config
+  { t: 40000, f: function() { addLog('00:40', 'orange', 'Configuring 30-day monitoring · Thresholds: dyspnea, weight +2lb, edema'); setProgress(88); } },
+
+  // T+44.0s — monitoring active
+  { t: 44000, f: function() { addLog('00:44', 'green',  'Monitoring active · Alert routing: Dr. Chen + Dr. Okonkwo'); setProgress(94, 'Monitoring active · 4 complete'); } },
+
+  // T+46.0s — summary bar appears
+  { t: 46000, f: function() { sumbar.classList.add('on'); setProgress(100, 'All actions complete · 0 manual steps'); } },
+
+  // T+48.0s — celebration pulse
+  { t: 48000, f: function() { ['pa','sp','lb','pc'].forEach(celebrate); } },
+
+  // T+52.0s — final log, italic, cursor off
+  { t: 52000, f: function() {
+    addLog('00:52', 'green', 'Patient M.R. protected. Next check-in: Jan 11.', false, true);
+    cursorRow.classList.remove('on');
+    fdot.classList.add('done');
+  }},
+
+  // T+58.0s — timer freezes, replay button appears
+  { t: 58000, f: function() { frozen = true; ltimer.textContent = '1:24'; replayBtn.classList.add('on'); } },
+
+  // T+64.0s — auto loop
+  { t: 64000, f: function() { resetAndReplay(); } },
+];
+
+// ============================================================
+// SCHEDULER — run all TL entries
+// ============================================================
+function schedule() {
+  TL.forEach(function(ev) {
+    timers.push(setTimeout(ev.f, ev.t));
+  });
+}
+
+function startTimerInterval() {
+  startT = Date.now();
+  timerInt = setInterval(function() {
+    if (!frozen) ltimer.textContent = fmt(Date.now() - startT);
+  }, 100);
+}
+
+// ============================================================
+// RESET — total DOM + state reset
+// ============================================================
+function clearAll() {
+  timers.forEach(clearTimeout);
+  timers = [];
+  if (timerInt) { clearInterval(timerInt); timerInt = null; }
+  frozen  = false;
+  running = false;
+}
+
+function resetDOM() {
+  // patient card
+  patcard.classList.remove('on');
+
+  // log entries — remove all .ll lines, keep cursor row
+  var lines = entries.querySelectorAll('.ll');
+  lines.forEach(function(l) { l.remove(); });
+  cursorRow.classList.remove('on');
+
+  // timer
+  ltimer.textContent = '00:00';
+
+  // progress bar (disable transition for instant reset)
+  pfill.style.transition = 'none';
+  pfill.style.width = '0%';
+  plbl.textContent = 'Ready · Awaiting trigger';
+  timers.push(setTimeout(function() { pfill.style.transition = 'width 1.1s ease'; }, 50));
+
+  // action cards
+  Object.keys(CARDS).forEach(function(key) {
+    var c = CARDS[key];
+    c.el.className   = 'ac';
+    c.chip.className = 'ac-chip sc-pend';
+    c.chip.textContent = 'Pending';
+  });
+  document.getElementById('d-pa').textContent = 'UnitedHealthcare · PA required';
+  document.getElementById('d-sp').textContent = 'In-network · 7-day window';
+  document.getElementById('d-lb').textContent = 'Quest Diagnostics · Jan 21';
+  document.getElementById('d-pc').textContent = 'EHR delivery · pending';
+
+  // summary bar
+  sumbar.classList.remove('on');
+
+  // replay button
+  replayBtn.classList.remove('on');
+
+  // flint dot
+  fdot.classList.remove('done');
+}
+
+function resetAndReplay() {
+  clearAll();
+  resetDOM();
+  setTimeout(run, 100);
+}
+
+// ============================================================
+// RUN
+// ============================================================
+function run() {
+  if (running) return;
+  running = true;
+  startTimerInterval();
+  schedule();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+replayBtn.addEventListener('click', function() {
+  clearAll();
+  resetDOM();
+  setTimeout(run, 100);
+});
+
+run();
+</script>
+</body>
+</html>

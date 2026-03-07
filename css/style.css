@@ -238,6 +238,12 @@ body::after {
   font-size: 21px; letter-spacing: 0.14em;
   transition: color 0.4s;
 }
+.nav-logo a {
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo-icon {
+  height: 22px; width: auto;
+}
 #nav.over-hero  .nav-logo { color: rgba(250, 248, 244, 0.9); }
 #nav.over-light .nav-logo { color: var(--ink); }
 
@@ -1220,6 +1226,9 @@ body::after {
 
 .all-caps {
   text-transform: uppercase; /* Makes the text display as "THIS TEXT WILL BE IN ALL CAPITAL LETTERS." */
+}
+.kerning-tight {
+  letter-spacing: -0.02em;
 }
 
 /* ============================================================

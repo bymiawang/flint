@@ -5,21 +5,6 @@
 (function () {
   'use strict';
 
-  /* ── Cursor ─────────────────────────────────────────────── */
-  const cursor = document.getElementById('cursor');
-  if (cursor) {
-    let mx = -100, my = -100;
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-    });
-    document.querySelectorAll('a, button, .feature-card, .flow-step, .comp-trow, .team-card').forEach(el => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
-    });
-  }
-
   /* ── Nav state ──────────────────────────────────────────── */
   const nav  = document.getElementById('nav');
   const hero = document.getElementById('hero');
@@ -99,6 +84,35 @@
         hidden = true;
       }
     }, { passive: true });
+  }
+
+  /* ── Stat counters ──────────────────────────────────────── */
+  const statEls = document.querySelectorAll('.t-stat[data-count]');
+  if (statEls.length) {
+    const countUp = (el) => {
+      const target  = +el.dataset.count;
+      const prefix  = el.dataset.prefix  || '';
+      const suffix  = el.dataset.suffix  || '';
+      const dur     = 1400;
+      const start   = performance.now();
+      const ease    = t => 1 - Math.pow(1 - t, 3);
+      const tick    = (now) => {
+        const t   = Math.min((now - start) / dur, 1);
+        const val = Math.round(ease(t) * target);
+        el.textContent = prefix + val + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    const statIo = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          countUp(e.target);
+          statIo.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    statEls.forEach(el => statIo.observe(el));
   }
 
   /* ── Smooth anchor links ────────────────────────────────── */

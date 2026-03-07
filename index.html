@@ -9,20 +9,20 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ── Cursor ────────────────────────────────────────────── -->
-<div id="cursor"></div>
-
 <!-- ══════════════════════════════════════════════════════════
      NAV
 ══════════════════════════════════════════════════════════ -->
+<body id="top">
 <nav id="nav" class="over-hero">
-  <div class="nav-logo">Flint</div>
+  <div class="nav-logo">
+    <a href="#top">FLINT</a>
+  </div>
   <ul class="nav-links">
     <li><a href="#problem">Problem</a></li>
     <li><a href="#product">Product</a></li>
@@ -66,7 +66,7 @@
   <div class="hero-bottom">
     <p class="hero-tagline">
       The autonomous agent for<br>
-      <strong>what happens after discharge.</strong>
+      what happens after discharge.
     </p>
     <div class="hero-chip badge-dark">Healthcare AI &nbsp;·&nbsp; Agentic</div>
   </div>
@@ -87,7 +87,7 @@
   <div class="sec-label reveal">
     <span class="t-label orange">The Problem</span>
   </div>
-  <h2 class="t-section reveal reveal-d1" style="max-width:680px;">
+  <h2 class="t-section reveal reveal-d1 section-hed-narrow all-caps">
     Discharge is where care <span class="orange">stops.</span>
   </h2>
 
@@ -116,11 +116,11 @@
     <!-- Right: stats -->
     <div class="problem-right">
       <div class="stat-block reveal reveal-d1">
-        <div class="t-stat">$60B</div>
+        <div class="t-stat" data-count="60" data-prefix="$" data-suffix="B">$60B</div>
         <div class="stat-sub">Spent annually on preventable readmissions. 75% are preventable with proper post-discharge management.</div>
       </div>
       <div class="stat-block reveal reveal-d2">
-        <div class="t-stat">14 hrs</div>
+        <div class="t-stat" data-count="14" data-suffix=" hrs">14 hrs</div>
         <div class="stat-sub">Per physician per week consumed by prior authorization paperwork — the single biggest administrative bottleneck in the discharge window.</div>
       </div>
       <div class="stat-block reveal reveal-d3">
@@ -140,7 +140,7 @@
   </div>
 
   <div class="product-header">
-    <h2 class="t-section reveal reveal-d1">
+    <h2 class="t-section reveal reveal-d1 all-caps">
       The post-discharge<br><span class="orange">operating system.</span>
     </h2>
     <p class="t-serif reveal reveal-d2">
@@ -154,28 +154,24 @@
     <!-- Lead card (orange) -->
     <div class="feature-card lead">
       <span class="t-label">Core</span>
-      <div class="feature-icon">⚡</div>
       <div class="t-card-title">Autonomous PA Execution</div>
       <p class="t-body">Reads the discharge note. Identifies PA-required procedures. Assembles documentation. Submits via FHIR API. No human in the loop. 90 seconds.</p>
       <span class="badge">Live Demo · Apr 17</span>
     </div>
     <div class="feature-card">
       <span class="t-label">02</span>
-      <div class="feature-icon">🔗</div>
       <div class="t-card-title">Specialist Booking & Handoff</div>
       <p class="t-body">Identifies in-network specialists, checks availability, books the appointment, sends a structured clinical handoff — automatically.</p>
       <span class="badge">FHIR R4</span>
     </div>
     <div class="feature-card">
       <span class="t-label">03</span>
-      <div class="feature-icon">📡</div>
       <div class="t-card-title">30-Day Monitoring Loop</div>
       <p class="t-body">Persistent agent monitors each patient post-discharge. Flags deterioration signals. Escalates before the patient ends up back in the ER.</p>
       <span class="badge">Agentic</span>
     </div>
     <div class="feature-card">
       <span class="t-label">04</span>
-      <div class="feature-icon">📊</div>
       <div class="t-card-title">Clinician Dashboard</div>
       <p class="t-body">Every exception, denial, and escalation surfaces to a single view. Humans validate — they don't coordinate. Time freed for patients, not paperwork.</p>
       <span class="badge">Human-in-loop</span>
@@ -184,7 +180,7 @@
 
   <div class="product-footer reveal">
     <p class="t-body">
-      For <strong style="color:var(--ink); font-weight:500;">hospital discharge teams, hospitalists, and care coordinators</strong>
+      For <strong class="t-body-strong">hospital discharge teams, hospitalists, and care coordinators</strong>
       at regional health systems.
     </p>
     <div class="badge-row">
@@ -202,7 +198,7 @@
   <div class="sec-label reveal">
     <span class="t-label orange">How It Works</span>
   </div>
-  <h2 class="t-section reveal reveal-d1">
+  <h2 class="t-section reveal reveal-d1 all-caps">
     Discharge signed.<br><span class="orange">Flint activates.</span>
   </h2>
 
@@ -256,10 +252,10 @@
 ══════════════════════════════════════════════════════════ -->
 <section id="demo-section" class="section bg-coal">
   <div class="sec-label reveal">
-    <span class="t-label" style="color:rgba(232,68,10,0.75);">Product Demo</span>
+    <span class="t-label demo-label">Product Demo</span>
   </div>
-  <h2 class="t-section reveal reveal-d1" style="color:rgba(250,248,244,0.88);">
-    Flint in action &nbsp;<span style="color:rgba(250,248,244,0.2);">— Heart failure, discharge day</span>
+  <h2 class="t-section reveal reveal-d1 demo-hed all-caps">
+    Flint in action <span class="demo-hed-dim">— Heart failure, discharge day</span>
   </h2>
 
   <div class="demo-screen reveal">
@@ -324,17 +320,17 @@
 ══════════════════════════════════════════════════════════ -->
 <section id="sauce" class="section bg-orange">
   <div class="sec-label reveal">
-    <span class="t-label" style="color:rgba(255,255,255,0.5);">Secret Sauce</span>
+    <span class="t-label sauce-label">Secret Sauce</span>
   </div>
 
   <div class="sauce-layout">
     <div class="reveal">
-      <h2 class="sauce-hed">The data<br>no one<br>else has.</h2>
+      <h2 class="sauce-hed all-caps">The data<br>no one<br>else has.</h2>
       <p class="sauce-sub">
         Every PA submission, denial, and appeal outcome Flint processes is a
         labeled data point — across 900+ payers, compounding with every patient discharged.
       </p>
-      <div class="sauce-callout">
+      <div class="sauce-callouts">
         The <strong>Bloomberg Terminal</strong> for what payers actually approve —
         not what their policy documents say.
       </div>
@@ -381,7 +377,7 @@
   <div class="sec-label reveal">
     <span class="t-label orange">Market Size</span>
   </div>
-  <h2 class="t-section reveal reveal-d1" style="max-width:640px; margin-bottom: 0;">
+  <h2 class="t-section reveal reveal-d1 section-hed-narrow all-caps">
     A <span class="orange">$60B</span> problem with<br>no incumbent solution.
   </h2>
 
@@ -443,10 +439,10 @@
   </div>
 
   <div class="comp-header">
-    <h2 class="t-section reveal reveal-d1">
+    <h2 class="t-section reveal reveal-d1 all-caps">
       Flint's wedge<br>is <span class="orange">unoccupied.</span>
     </h2>
-    <p class="t-body reveal reveal-d2" style="max-width:400px;">
+    <p class="t-body reveal reveal-d2 section-body-narrow">
       Existing players own the clinical encounter. Nobody owns what happens
       after the patient walks out. That gap is Flint's entry point — and its compounding moat.
     </p>
@@ -478,13 +474,13 @@
       <div class="comp-td"><span class="comp-name">Cohere Health</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
-      <div class="comp-td"><span class="chk part">✓ payer-side</span></div>
+      <div class="comp-td"><span class="chk part">✓ PAYER-SIDE</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
     </div>
     <div class="comp-trow">
       <div class="comp-td"><span class="comp-name">Memora / Notable</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
-      <div class="comp-td"><span class="chk part">✓ messaging</span></div>
+      <div class="comp-td"><span class="chk part">✓ MESSAGING</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
       <div class="comp-td"><span class="chk no">—</span></div>
     </div>
@@ -494,9 +490,9 @@
         <span class="wedge-chip">Our Wedge</span>
       </div>
       <div class="comp-td"><span class="chk yes">✓</span></div>
-      <div class="comp-td"><span class="chk yes">✓ OS layer</span></div>
-      <div class="comp-td"><span class="chk yes">✓ autonomous</span></div>
-      <div class="comp-td"><span class="chk yes" style="color:var(--flint);">✓ compounds</span></div>
+      <div class="comp-td"><span class="chk yes">✓ OS LAYER</span></div>
+      <div class="comp-td"><span class="chk yes">✓ AUTONOMOUS</span></div>
+      <div class="comp-td"><span class="chk yes flint">✓ COMPOUNDS</span></div>
     </div>
   </div>
 </section>
@@ -508,73 +504,53 @@
   <div class="sec-label reveal">
     <span class="t-label orange">Business Model</span>
   </div>
-  <h2 class="t-section reveal reveal-d1">
+  <h2 class="t-section reveal reveal-d1 all-caps">
     Performance-priced.<br><span class="orange">Aligned by design.</span>
   </h2>
 
-  <div class="model-cols reveal">
-    <div class="model-phase">
-      <div class="model-phase-tag">Phase 1 &nbsp;·&nbsp; Year 1–2</div>
-      <div class="model-phase-title">Per-Discharge<br>Execution Fee</div>
-      <p class="model-phase-desc">
-        Health systems pay per discharged patient for Flint's 30-day coverage window.
-        Zero upfront cost. We absorb integration to get into workflow.
-        Target: regional systems with above-average CMS readmission penalties —
-        where ROI requires no explanation.
-      </p>
-      <div class="model-metrics">
-        <div class="model-metric">
-          <span class="model-metric-k">Fee / discharge</span>
-          <span class="model-metric-v">$45 – $85</span>
+  <div class="model-wrapper reveal">
+    <div class="model-cols">
+      <div class="model-phase">
+        <div class="model-phase-tag">Phase 1 · Year 1–2</div>
+        <div class="model-phase-title all-caps">Per-Discharge<br>Execution Fee</div>
+        <p class="model-phase-desc">Pay-per-patient. Zero upfront cost. We absorb integration.</p>
+        <div class="model-metrics">
+          <div class="model-metric">
+            <div class="model-metric-v">$45 – $85</div>
+            <div class="model-metric-k">Per discharge</div>
+          </div>
+          <div class="model-metric">
+            <div class="model-metric-v">&gt;10X</div>
+            <div class="model-metric-k">ROI vs. CMS penalty</div>
+          </div>
         </div>
-        <div class="model-metric">
-          <span class="model-metric-k">500-bed hospital</span>
-          <span class="model-metric-v">~15K discharges/yr</span>
-        </div>
-        <div class="model-metric">
-          <span class="model-metric-k">ARR / system</span>
-          <span class="model-metric-v">$675K – $1.3M</span>
-        </div>
-        <div class="model-metric">
-          <span class="model-metric-k">ROI vs. CMS penalty</span>
-          <span class="model-metric-v">&gt;10×</span>
+      </div>
+      <div class="model-phase">
+        <div class="model-phase-tag">Phase 2 · Year 3+</div>
+        <div class="model-phase-title all-caps">Payer Intelligence<br>Subscriptions</div>
+        <p class="model-phase-desc">Every PA submission is a labeled data point. The dataset compounds — no competitor can replicate it.</p>
+        <div class="model-metrics">
+          <div class="model-metric">
+            <div class="model-metric-v">Annual SaaS</div>
+            <div class="model-metric-k">Model</div>
+          </div>
+          <div class="model-metric">
+            <div class="model-metric-v">Systems · Payers · Pharma</div>
+            <div class="model-metric-k">Buyers</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="model-phase">
-      <div class="model-phase-tag">Phase 2 &nbsp;·&nbsp; Year 3+</div>
-      <div class="model-phase-title">Payer Intelligence<br>Subscriptions</div>
-      <p class="model-phase-desc">
-        Every transaction is a labeled data point. After millions of PA submissions,
-        Flint holds the most granular real-time map of payer approval behavior in
-        existence — sold as an annual subscription to health systems, payers, and pharma.
-        No competitor can access this dataset without matching patient volume.
-      </p>
-      <div class="model-metrics">
-        <div class="model-metric">
-          <span class="model-metric-k">Model</span>
-          <span class="model-metric-v">Annual SaaS</span>
-        </div>
-        <div class="model-metric">
-          <span class="model-metric-k">Buyers</span>
-          <span class="model-metric-v">Systems · Payers · Pharma</span>
-        </div>
-        <div class="model-metric">
-          <span class="model-metric-k">Moat</span>
-          <span class="model-metric-v">Dataset, not features</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="model-arr reveal">
-    <div>
-      <div class="t-label" style="color:var(--ghost); margin-bottom:6px;">5-hospital pilot · Year 1 ARR target</div>
-      <div class="model-arr-n">$3.4M – $6.5M</div>
-    </div>
-    <div class="model-arr-note">
-      CMS penalizes high readmission rates up to 3% of all Medicare payments.<br>
-      Flint's ROI case requires no explanation.
+    <div class="model-arr">
+      <div>
+        <div class="model-arr-label">5-hospital pilot · Year 1 ARR target</div>
+        <div class="model-arr-n">$3.4M – $6.5M</div>
+      </div>
+      <p class="model-arr-note">
+        CMS penalizes readmissions up to 3% of all Medicare payments.<br>
+        Flint's ROI case requires no explanation.
+      </p>
     </div>
   </div>
 </section>
@@ -586,7 +562,7 @@
   <div class="sec-label reveal">
     <span class="t-label orange">Milestones &amp; Roadmap</span>
   </div>
-  <h2 class="t-section reveal reveal-d1">
+  <h2 class="t-section reveal reveal-d1 all-caps">
     Where we are.<br><span class="orange">Where we're going.</span>
   </h2>
 
@@ -642,7 +618,7 @@
     <div class="milestone-cards reveal reveal-d2">
       <div class="m-card">
         <div class="m-card-label">Demo · April 17</div>
-        <div class="m-card-big">90<span class="orange">s</span></div>
+        <div class="m-card-big">90s</span></div>
         <p class="m-card-sub">Clinical note in → PA assembled, submitted, decision returned. Live. On stage. Heart failure. No simulation.</p>
       </div>
       <div class="m-card">
@@ -679,10 +655,10 @@
   </div>
 
   <div class="team-header">
-    <h2 class="t-section reveal reveal-d1">
+    <h2 class="t-section reveal reveal-d1 all-caps">
       Mission-driven.<br><span class="orange">Technically sharp.</span>
     </h2>
-    <p class="t-body reveal reveal-d2" style="max-width:400px;">
+    <p class="t-body reveal reveal-d2 section-body-narrow">
       Building Flint because the problem is real, the infrastructure timing is right,
       and we've spent careers inside complex systems that needed to be redesigned.
     </p>
@@ -774,9 +750,9 @@
 
     <div class="ask-right reveal reveal-d2">
       <p class="ask-closing">
-        Every 30 seconds, a patient is discharged into a system with
-        <strong>no one responsible for what happens next.</strong><br><br>
-        Flint <strong>makes someone responsible.</strong>
+        Every 30 seconds, a patient is discharged into a system with 
+        no one responsible for what happens next.<br><br>
+        Flint makes someone responsible.
       </p>
       <div class="prize-list">
         <div class="prize-row primary">
@@ -799,14 +775,7 @@
     </div>
   </div>
 </section>
-
-<!-- ══════════════════════════════════════════════════════════
-     FOOTER
-══════════════════════════════════════════════════════════ -->
-<footer id="footer">
-  <div class="footer-logo">Flint</div>
-  <div class="footer-note">IYA Venture Showcase &nbsp;·&nbsp; April 17, 2026 &nbsp;·&nbsp; USC Los Angeles</div>
-</footer>
+</body>
 
 <script src="js/main.js"></script>
 </body>

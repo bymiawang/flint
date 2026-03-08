@@ -635,10 +635,6 @@ body::after {
 /* ============================================================
    DEMO SCREEN (dark section)
    ============================================================ */
-#demo-section { background: var(--coal-2); }
-#demo-section .sec-label::before { background: rgba(232,68,10,0.7); }
-#demo-section .sec-label .t-label { color: rgba(232,68,10,0.7); }
-
 .demo-screen {
   background: #1c1b19;
   border: 1px solid var(--rule-dark);

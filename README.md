@@ -1,5 +1,4 @@
 # Flint — Post-Discharge OS
-### IYA Venture Showcase 2026
 
 ## Structure
 ```
